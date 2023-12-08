@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import StarRating from "./components/StarRating";
 import { useMovies } from "./hooks/useMovies";
 import { useLocalStorageState } from "./hooks/useLocalStorageState";
+import { useKey } from "./hooks/useKey";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -105,17 +106,11 @@ const Logo = () => {
 const Search = ({ query, setQuery }) => {
   const inputEl = useRef(null);
 
-  useEffect(() => {
-    function callback(e) {
-      if (document.activeElement === inputEl.current) return;
-      if (e.code === "Enter") {
-        inputEl.current.focus();
-        setQuery("");
-      }
-    }
-    document.addEventListener("keydown", callback);
-    return () => document.removeEventListener("keydown", callback);
-  }, [setQuery]);
+  useKey("Enter", () => {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery("");
+  });
 
   return (
     <input
@@ -244,6 +239,9 @@ const MovieDetails = ({
     onWatchedMovie(newWatchedMovie);
     onCloseMovie();
   };
+
+  useKey("Escape", onCloseMovie);
+
   useEffect(() => {
     async function getMovieDetails() {
       setIsLoading(true);
